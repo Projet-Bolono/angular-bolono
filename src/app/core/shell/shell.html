@@ -8,9 +8,13 @@
   class="fixed inset-y-0 left-0 z-40 flex w-56 flex-col overflow-hidden border-r border-sand/70 bg-surface transition-transform duration-200 lg:translate-x-0"
   [class.-translate-x-full]="!barreOuverte()"
 >
-  <a routerLink="/" class="flex shrink-0 items-center gap-2.5 px-5 pt-5 pb-6">
-    <img src="images/bolono-logo.svg" alt="" class="h-9 w-9" />
-    <span class="text-xl font-bold tracking-tight text-brown">Bolono</span>
+  <a
+    routerLink="/"
+    class="flex shrink-0 items-center gap-2.5 px-5 pt-5 pb-6"
+    aria-label="Bolono — accueil"
+  >
+    <img src="images/logo.svg" alt="" class="h-10 w-auto" />
+    <img src="images/logo-text.svg" alt="Bolono" class="h-7 w-auto" />
   </a>
 
   <nav

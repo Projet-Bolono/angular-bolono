@@ -44,3 +44,40 @@ export interface ParametreAdmin {
   valeur: string | null;
   dateModification: string | null;
 }
+
+/** Connexion au service de vérification d'identité (secrets jamais renvoyés en clair). */
+export interface ConfigurationKyc {
+  actif: boolean;
+  urlApi: string | null;
+  urlPublique: string | null;
+  pays: string;
+  cleApiDefinie: boolean;
+  /** Partie publique de la clé, ex. « kyc_live_ab12cd34 ». */
+  apercuCleApi: string | null;
+  environnement: 'test' | 'live' | null;
+  secretWebhookDefini: boolean;
+  dateModification: string | null;
+  modifiePar: string | null;
+}
+
+/** Clé d'API ou secret vides : valeur enregistrée conservée. */
+/**
+ * Mise à jour partielle : seuls les champs présents changent côté serveur.
+ * `urlPublique: ''` efface l'URL publique.
+ */
+export interface ModifierConfigurationKyc {
+  actif?: boolean;
+  urlApi?: string;
+  urlPublique?: string;
+  pays?: string;
+  cleApi?: string;
+  secretWebhook?: string;
+  supprimerSecretWebhook?: boolean;
+}
+
+export interface TestConnexionKyc {
+  joignable: boolean;
+  cleValide: boolean;
+  environnement: 'test' | 'live' | null;
+  message: string;
+}

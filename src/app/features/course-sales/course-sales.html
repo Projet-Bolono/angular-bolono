@@ -1,0 +1,157 @@
+<app-entete-page titre="Ventes de formations"> </app-entete-page>
+
+@if (synthese.value(); as s) {
+  <div class="mb-5 grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div class="card p-4">
+      <p class="text-xs text-muted-strong">Ventes payées</p>
+      <p class="mt-1 text-xl font-bold">{{ s.payees }}</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs text-muted-strong">Chiffre d'affaires</p>
+      <p class="mt-1 text-xl font-bold">{{ fcfa(s.chiffreAffaires) }}</p>
+    </div>
+    <div class="card p-4">
+      <p class="text-xs text-muted-strong">Commissions Bolono</p>
+      <p class="mt-1 text-xl font-bold text-success">{{ fcfa(s.commissions) }}</p>
+    </div>
+    <a class="card block p-4 hover:border-sand-deep" routerLink="/retraits">
+      <p class="text-xs text-muted-strong">Part des mentors pas encore envoyée</p>
+      <p class="mt-1 text-xl font-bold">{{ fcfa(s.aVerser) }}</p>
+      <p class="link-accent mt-1 text-xs">Voir les retraits</p>
+    </a>
+  </div>
+}
+
+<div class="onglets mb-4 sm:w-fit" role="tablist">
+  @for (o of onglets(); track o.valeur) {
+    <button
+      class="onglet"
+      [class.onglet-actif]="onglet() === o.valeur"
+      role="tab"
+      [attr.aria-selected]="onglet() === o.valeur"
+      (click)="onglet.set(o.valeur)"
+    >
+      {{ o.libelle }}
+      @if (o.compte > 0) {
+        <span
+          class="min-w-5 rounded-full bg-terracotta px-1.5 text-center text-2xs leading-5 font-bold text-white"
+          >{{ o.compte }}</span
+        >
+      }
+    </button>
+  }
+</div>
+
+<div class="card relative mb-5 p-4 sm:p-5">
+  <app-barre-chargement [actif]="achats.isLoading()" />
+  @if (achats.error()) {
+    <app-etat-vide icone="warning" titre="Chargement impossible" [message]="erreur(achats.error())">
+      <button class="btn-accent btn-sm mt-2" (click)="achats.reload()">Réessayer</button>
+    </app-etat-vide>
+  } @else if (achats.value(); as page) {
+    @if (page.content.length) {
+      <ul class="divide-y divide-line">
+        @for (a of page.content; track a.reference) {
+          <li class="py-4">
+            <div class="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+              <div class="min-w-0">
+                <p class="font-semibold">
+                  {{ a.reference }} · {{ fcfa(a.montant) }}
+                  @if (a.formationEntiere) {
+                    <app-badge ton="accent">Formation entière</app-badge>
+                  }
+                </p>
+                <p class="text-sm">
+                  « {{ a.titreContenu }} »
+                  <a class="link-accent text-xs" [routerLink]="['/formations', a.formationId]">{{
+                    a.formationTitre
+                  }}</a>
+                </p>
+                <p class="text-xs text-muted-strong">
+                  {{ a.acheteurNom }} {{ a.acheteurTelephone ?? '' }} ·
+                  {{ moyens[a.modePaiement] ?? a.modePaiement }} ·
+                  {{ dateHeure(a.dateCreation) }} · mentor : {{ a.mentorNom }}
+                </p>
+              </div>
+              @if (a.statut === 'PAYE') {
+                <div class="text-right text-xs text-muted-strong">
+                  <p>Mentor {{ fcfa(a.montantMentor) }} · Bolono {{ fcfa(a.commission) }}</p>
+                  <p>Payé le {{ dateHeure(a.datePaiement) }} (op. {{ a.referenceOperation }})</p>
+                  <div class="mt-1 flex flex-wrap items-center justify-end gap-2">
+                    @if (a.dateVersement) {
+                      <app-badge ton="succes">Retiré par le mentor</app-badge>
+                    } @else if (a.referenceRetrait) {
+                      <app-badge ton="info">Retrait {{ a.referenceRetrait }} en cours</app-badge>
+                    } @else {
+                      <app-badge ton="neutre">Part non retirée</app-badge>
+                    }
+                    @if (remboursable(a)) {
+                      <button
+                        class="btn-outline btn-sm"
+                        [disabled]="enCours() === a.reference"
+                        (click)="rembourser(a)"
+                      >
+                        <app-icon name="arrow-u-up-left" [size]="14" /> Rembourser
+                      </button>
+                    }
+                  </div>
+                </div>
+              } @else if (a.statut === 'REMBOURSE') {
+                <div class="max-w-xs text-right text-xs text-muted-strong">
+                  <p>Remboursé le {{ dateHeure(a.dateRemboursement) }} par {{ a.confirmePar }}</p>
+                  <p>{{ a.motifRemboursement }}</p>
+                </div>
+              }
+            </div>
+            @if (a.statut === 'EN_ATTENTE') {
+              <app-confirmation-achat
+                [achat]="a"
+                [occupe]="enCours() === a.reference"
+                (confirmer)="confirmer(a, $event.montant, $event.operation)"
+                (refuser)="refuser(a)"
+              />
+            }
+          </li>
+        }
+      </ul>
+    } @else {
+      <app-etat-vide icone="credit-card" [titre]="titreVide()" [message]="messageVide()" />
+    }
+  } @else {
+    <app-squelette [hauteur]="240" />
+  }
+</div>
+
+<section class="card p-4 sm:p-6">
+  <h2 class="card-title mb-2">Commission de Bolono</h2>
+  <p class="mb-4 text-sm text-muted-strong">
+    Part gardée par Bolono sur chaque vente de vidéo ou de formation ; le mentor reçoit le reste. Un
+    changement s'applique aux achats suivants seulement.
+  </p>
+  <form
+    class="flex flex-wrap items-end gap-3"
+    (submit)="$event.preventDefault(); enregistrerCommission()"
+  >
+    <label class="text-xs font-semibold text-muted-strong">
+      Commission (%)
+      <input
+        class="input mt-1 w-28!"
+        type="number"
+        min="0"
+        max="90"
+        name="commission"
+        [(ngModel)]="commission"
+        required
+      />
+    </label>
+    <button class="btn-accent" type="submit" [disabled]="commissionEnregistrement()">
+      Enregistrer
+    </button>
+    @if (commission !== null && commission >= 0) {
+      <p class="text-xs text-muted">
+        Ex. : sur une vidéo à 2 000 FCFA, le mentor reçoit
+        {{ fcfa(partMentor(2000, commission)) }}.
+      </p>
+    }
+  </form>
+</section>

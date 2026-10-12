@@ -24,6 +24,8 @@ export interface QuizResume {
   reussites: number;
 }
 
+export type ModeTarification = 'GRATUITE' | 'FORMATION_ENTIERE' | 'PAR_VIDEO';
+
 export interface ModuleAdmin {
   id: number;
   titre: string;
@@ -34,6 +36,12 @@ export interface ModuleAdmin {
   disponibleHorsLigne: boolean;
   termines: number;
   quiz: QuizResume | null;
+  /** Prix fixé par le mentor (FCFA), en « vidéo par vidéo » seulement. */
+  prix: number | null;
+  /** Réservée aux acheteurs (vendue seule ou avec la formation). */
+  payante: boolean;
+  /** Vidéo offerte d'une formation vendue entière. */
+  apercuGratuit: boolean;
 }
 
 export interface FormationDetailAdmin {
@@ -50,6 +58,15 @@ export interface FormationDetailAdmin {
   termines: number;
   tauxCompletion: number;
   modules: ModuleAdmin[];
+  /** Brouillon du mentor, pas encore au catalogue. */
+  brouillon: boolean;
+  /** Retirée du catalogue par l'équipe (les acheteurs gardent l'accès). */
+  retiree: boolean;
+  /** Mode de vente choisi par le mentor dans l'app. */
+  modeTarification: ModeTarification;
+  prixFormation: number | null;
+  /** Achats payés (vidéos ou formation entière). */
+  ventes: number;
 }
 
 export interface FormationRequest {

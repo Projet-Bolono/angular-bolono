@@ -13,10 +13,17 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { SettingsService } from './settings.service';
+import { KycParametres } from './kyc-parametres';
 import { AuthService } from '../../core/auth/auth.service';
 import { dateCourte, dateHeure, nombre } from '../../core/utils/format';
 import { messageApi } from '../../core/auth/http';
-import type { CategorieAdmin, CleParametre, ParametreAdmin, ReglesVentes, TypeCategorie } from './settings.model';
+import type {
+  CategorieAdmin,
+  CleParametre,
+  ParametreAdmin,
+  ReglesVentes,
+  TypeCategorie,
+} from './settings.model';
 import { API_ADMIN } from '../../core/api/ressources';
 import { ToastService } from '../../core/notifications/toast.service';
 import { Icon } from '../../shared/icons/icon';
@@ -260,7 +267,7 @@ export class ReglesVentesParametres {
   }
 }
 
-type Onglet = 'compte' | 'categories' | 'textes' | 'ventes';
+type Onglet = 'compte' | 'categories' | 'textes' | 'ventes' | 'kyc';
 
 @Component({
   selector: 'app-parametres',
@@ -273,6 +280,7 @@ type Onglet = 'compte' | 'categories' | 'textes' | 'ventes';
     CategoriesParametres,
     TextesParametres,
     ReglesVentesParametres,
+    KycParametres,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './parametres.html',
@@ -287,12 +295,13 @@ export class ParametresPage {
     { cle: 'categories', libelle: 'Catégories', icone: 'tag' },
     { cle: 'textes', libelle: 'Textes et contacts', icone: 'text-align-left' },
     { cle: 'ventes', libelle: 'Ventes sécurisées', icone: 'lock-simple' },
+    { cle: 'kyc', libelle: 'Vérification d’identité', icone: 'seal-check' },
   ];
   /** Paramètre de requête ?onglet=… */
   readonly onglet = input<string>();
   protected readonly ongletActif = computed<Onglet>(() => {
     const o = this.onglet();
-    return o === 'categories' || o === 'textes' || o === 'ventes' ? o : 'compte';
+    return o === 'categories' || o === 'textes' || o === 'ventes' || o === 'kyc' ? o : 'compte';
   });
   protected readonly apiUrl = environment.apiUrl;
   protected readonly projetFirebase = environment.firebase.projectId;

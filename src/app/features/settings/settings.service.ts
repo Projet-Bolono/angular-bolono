@@ -1,4 +1,12 @@
-import type { TypeCategorie, CategorieAdmin, CleParametre, ParametreAdmin } from './settings.model';
+import type {
+  TypeCategorie,
+  CategorieAdmin,
+  CleParametre,
+  ConfigurationKyc,
+  ModifierConfigurationKyc,
+  ParametreAdmin,
+  TestConnexionKyc,
+} from './settings.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import type { Observable } from 'rxjs';
@@ -34,5 +42,13 @@ export class SettingsService {
     valeurs: Partial<Record<CleParametre, string | null>>,
   ): Observable<ParametreAdmin[]> {
     return this.http.put<ParametreAdmin[]>(`${API_ADMIN}/parametres`, { valeurs });
+  }
+
+  enregistrerConfigurationKyc(req: ModifierConfigurationKyc): Observable<ConfigurationKyc> {
+    return this.http.put<ConfigurationKyc>(`${API_ADMIN}/kyc/configuration`, req);
+  }
+
+  testerConnexionKyc(): Observable<TestConnexionKyc> {
+    return this.http.post<TestConnexionKyc>(`${API_ADMIN}/kyc/configuration/test`, {});
   }
 }

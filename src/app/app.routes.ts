@@ -58,6 +58,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/mentorship/mentorat').then((m) => m.MentoratPage),
       },
       {
+        path: 'mentorat/:id',
+        title: 'Candidature de mentorat · Bolono Admin',
+        loadComponent: () =>
+          import('./features/mentorship/candidature-mentor').then((m) => m.CandidatureMentorPage),
+      },
+      {
         path: 'commandes',
         title: 'Commandes · Bolono Admin',
         loadComponent: () => import('./features/orders/commandes').then((m) => m.CommandesPage),
@@ -93,6 +99,22 @@ export const routes: Routes = [
         path: 'badges',
         title: 'Badges · Bolono Admin',
         loadComponent: () => import('./features/badges/badges').then((m) => m.BadgesPage),
+      },
+      {
+        path: 'ventes-formations',
+        title: 'Ventes de formations · Bolono Admin',
+        loadComponent: () =>
+          import('./features/course-sales/course-sales').then((m) => m.VentesFormationsPage),
+      },
+      {
+        path: 'avis',
+        title: 'Avis des formations · Bolono Admin',
+        loadComponent: () => import('./features/reviews/avis').then((m) => m.AvisPage),
+      },
+      {
+        path: 'retraits',
+        title: 'Retraits des mentors · Bolono Admin',
+        loadComponent: () => import('./features/withdrawals/retraits').then((m) => m.RetraitsPage),
       },
       {
         path: 'annonces',
