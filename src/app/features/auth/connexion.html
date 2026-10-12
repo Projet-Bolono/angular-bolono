@@ -3,10 +3,10 @@
     class="card w-full max-w-sm p-8"
     (submit)="$event.preventDefault(); connecter(email.value, mdp.value)"
   >
-    <div class="mb-8 flex items-center gap-2.5">
-      <img src="images/bolono-logo.svg" alt="" class="h-9 w-9" />
-      <span class="text-xl font-bold">Bolono</span>
-      <span class="text-xl font-normal text-muted">Admin</span>
+    <div class="mb-8 flex flex-col items-center gap-2.5 text-center">
+      <img src="images/logo.svg" alt="" class="h-20 w-auto" />
+      <img src="images/logo-text.svg" alt="Bolono" class="h-9 w-auto" />
+      <span class="text-sm font-semibold tracking-wide text-muted uppercase">Back-office</span>
     </div>
     <h1 class="text-lg font-semibold">Connexion</h1>
     <p class="mt-1 text-sm text-muted-strong">Réservé aux administrateurs.</p>

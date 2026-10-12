@@ -1,0 +1,243 @@
+<a routerLink="/mentorat" class="link-accent mb-4 inline-flex items-center gap-1">
+  <app-icon name="caret-left" [size]="14" /> Candidatures
+</a>
+
+@if (candidature.error() && !candidature.hasValue()) {
+  <div class="card">
+    <app-etat-vide icone="warning" titre="Candidature introuvable" [message]="erreur()">
+      <button class="btn-accent btn-sm mt-2" (click)="candidature.reload()">Réessayer</button>
+    </app-etat-vide>
+  </div>
+} @else if (candidature.hasValue()) {
+  @let c = candidature.value();
+
+  <!-- En-tête -->
+  <header class="card mb-5 flex flex-wrap items-center gap-4 p-5">
+    <app-avatar [photo]="c.photoUrl" [nom]="c.artisanNom" [size]="64" />
+    <div class="min-w-0 flex-1">
+      <div class="flex flex-wrap items-center gap-2">
+        <h1 class="text-xl font-bold">{{ c.artisanNom }}</h1>
+        <app-badge [ton]="statuts[c.statut].ton">{{ statuts[c.statut].libelle }}</app-badge>
+      </div>
+      <p class="text-sm text-muted">
+        {{ c.specialite ?? 'Artisan' }} · candidature du {{ dateCourte(c.dateCandidature) }}
+      </p>
+    </div>
+    <a
+      routerLink="/utilisateurs"
+      [queryParams]="{ id: c.artisanId }"
+      class="btn-outline btn-sm"
+      title="Ouvrir la fiche complète du compte"
+    >
+      <app-icon name="user" [size]="16" /> Fiche complète
+    </a>
+  </header>
+
+  @if (alertes().length && c.statut === 'EN_ATTENTE') {
+    <div class="mb-5 space-y-2">
+      @for (a of alertes(); track a.texte) {
+        <p
+          class="flex items-start gap-2 rounded-xl border p-3 text-sm"
+          [class]="
+            a.ton === 'erreur'
+              ? 'border-error/20 bg-error-surface text-error'
+              : 'border-warning/25 bg-warning-surface text-warning'
+          "
+        >
+          <app-icon name="warning" [size]="16" class="mt-0.5 shrink-0" /> {{ a.texte }}
+        </p>
+      }
+    </div>
+  }
+
+  <div class="grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
+    <div class="min-w-0 space-y-5">
+      <!-- Candidature -->
+      <section class="card p-5">
+        <h2 class="card-title mb-4"><app-icon name="seal-check" [size]="18" /> Candidature</h2>
+        <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+          <div>
+            <dt class="text-xs text-muted">Domaine d'expertise</dt>
+            <dd class="font-medium">{{ c.domaineExpertise || '—' }}</dd>
+          </div>
+          <div>
+            <dt class="text-xs text-muted">Expérience déclarée</dt>
+            <dd class="font-medium">{{ experience(c) }}</dd>
+          </div>
+        </dl>
+        <p class="mt-4 text-xs text-muted">Motivation</p>
+        @if (c.motivation) {
+          <blockquote class="mt-1 rounded-xl bg-ochre-surface p-3.5 text-sm whitespace-pre-line text-muted-strong italic">
+            « {{ c.motivation }} »
+          </blockquote>
+        } @else {
+          <p class="mt-1 text-sm text-muted">Aucune motivation écrite.</p>
+        }
+        @if (c.lienGroupeWhatsapp) {
+          <a
+            [href]="c.lienGroupeWhatsapp"
+            target="_blank"
+            rel="noopener"
+            class="link-accent mt-3 inline-flex items-center gap-1"
+          >
+            <app-icon name="link-simple" [size]="14" /> Groupe WhatsApp proposé ↗
+          </a>
+        }
+      </section>
+
+      <!-- Profil -->
+      <section class="card p-5">
+        <h2 class="card-title mb-4"><app-icon name="user" [size]="18" /> Profil de l'artisan</h2>
+        @if (profil.hasValue()) {
+          @let d = profil.value();
+          @let u = d.profil;
+          @if (d.biographie) {
+            <p class="mb-4 text-sm whitespace-pre-line text-muted-strong">{{ d.biographie }}</p>
+          } @else {
+            <p class="mb-4 text-sm text-muted">Pas de présentation.</p>
+          }
+          <dl class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+            <div>
+              <dt class="text-xs text-muted">Spécialité</dt>
+              <dd class="font-medium">{{ u.specialite || '—' }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Ville</dt>
+              <dd class="font-medium">{{ u.ville || '—' }}{{ d.commune ? ', ' + d.commune : '' }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Atelier</dt>
+              <dd class="font-medium">{{ d.adresseAtelier || '—' }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Inscrit depuis le</dt>
+              <dd class="font-medium">{{ dateCourte(u.dateInscription) }}</dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Téléphone</dt>
+              <dd class="font-medium">
+                @if (u.telephone) {
+                  <a [href]="'tel:' + u.telephone" class="link-accent">{{ u.telephone }}</a>
+                } @else { — }
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">E-mail</dt>
+              <dd class="truncate font-medium">
+                <a [href]="'mailto:' + u.email" class="link-accent">{{ u.email }}</a>
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">Boutique</dt>
+              <dd class="font-medium">
+                @if (u.boutiqueId) {
+                  <a routerLink="/boutiques" [queryParams]="{ id: u.boutiqueId }" class="link-accent">{{ d.boutique }}</a>
+                } @else { Aucune }
+              </dd>
+            </div>
+            <div>
+              <dt class="text-xs text-muted">WhatsApp de l'atelier</dt>
+              <dd class="truncate font-medium">
+                @if (d.lienWhatsapp) {
+                  <a [href]="d.lienWhatsapp" target="_blank" rel="noopener" class="link-accent">Ouvrir ↗</a>
+                } @else { — }
+              </dd>
+            </div>
+          </dl>
+          @if (u.suspendu) {
+            <p class="mt-4 rounded-xl border border-error/20 bg-error-surface p-3 text-sm text-error">
+              Compte suspendu le {{ dateHeure(d.dateSuspension) }}{{ d.motifSuspension ? ' — ' + d.motifSuspension : '' }}
+            </p>
+          }
+        } @else if (profil.error()) {
+          <p class="text-sm text-error">Profil indisponible.</p>
+        } @else {
+          <app-squelette [hauteur]="160" />
+        }
+      </section>
+    </div>
+
+    <aside class="min-w-0 space-y-5">
+      <!-- Vérification d'identité -->
+      <section class="card p-5">
+        <h2 class="card-title mb-3"><app-icon name="lock-simple" [size]="18" /> Identité</h2>
+        @if (c.statutKyc) {
+          <app-badge [ton]="statutsKyc[c.statutKyc].ton">{{ statutsKyc[c.statutKyc].libelle }}</app-badge>
+          @if (c.dateKyc) {
+            <p class="mt-2 text-xs text-muted">Mise à jour le {{ dateHeure(c.dateKyc) }}</p>
+          }
+          @if (c.motifsKyc.length) {
+            <ul class="mt-3 space-y-1 text-sm">
+              @for (m of c.motifsKyc; track m) {
+                <li class="flex items-start gap-1.5">
+                  <app-icon name="info" [size]="14" class="mt-0.5 shrink-0 text-muted" /> {{ motif(m) }}
+                </li>
+              }
+            </ul>
+          }
+        } @else {
+          <app-badge>Identité non vérifiée</app-badge>
+          <p class="mt-2 text-xs text-muted">L'artisan n'a jamais lancé de vérification.</p>
+        }
+        <p class="mt-3 border-t border-line pt-3 text-xs text-muted">
+          {{
+            c.kycExigee
+              ? 'Vérification exigée pour devenir mentor.'
+              : 'Vérification non exigée actuellement (Paramètres › Vérification d’identité).'
+          }}
+        </p>
+      </section>
+
+      <!-- Activité -->
+      <section class="card p-5">
+        <h2 class="card-title mb-3"><app-icon name="pulse" [size]="18" /> Activité</h2>
+        @if (profil.hasValue()) {
+          @let a = profil.value().activite;
+          <dl class="grid grid-cols-2 gap-3 text-sm">
+            <div><dt class="text-xs text-muted">Publications</dt><dd class="text-lg font-bold">{{ nombre(a.publications) }}</dd></div>
+            <div><dt class="text-xs text-muted">Produits en vente</dt><dd class="text-lg font-bold">{{ nombre(a.produits) }}</dd></div>
+            <div><dt class="text-xs text-muted">Formations suivies</dt><dd class="text-lg font-bold">{{ nombre(a.formationsSuivies) }}</dd></div>
+            <div><dt class="text-xs text-muted">Formations publiées</dt><dd class="text-lg font-bold">{{ nombre(a.formationsPubliees) }}</dd></div>
+            <div><dt class="text-xs text-muted">Abonnés</dt><dd class="text-lg font-bold">{{ nombre(a.abonnes) }}</dd></div>
+            <div><dt class="text-xs text-muted">Commandes passées</dt><dd class="text-lg font-bold">{{ nombre(a.commandes) }}</dd></div>
+          </dl>
+        } @else {
+          <app-squelette [hauteur]="120" />
+        }
+      </section>
+
+      <!-- Décision -->
+      <section class="card p-5">
+        <h2 class="card-title mb-3"><app-icon name="seal-check" [size]="18" /> Décision</h2>
+        @if (c.statut === 'EN_ATTENTE') {
+          <p class="mb-4 text-sm text-muted">
+            Accepté, l'artisan pourra publier des formations et des statuts. Il est prévenu dans
+            les deux cas.
+          </p>
+          <div class="flex flex-col gap-2">
+            <button class="btn-accent w-full" [disabled]="enCours()" (click)="decider('ACCEPTE')">
+              <app-icon name="seal-check" [size]="18" /> Accepter la candidature
+            </button>
+            <button class="btn-outline w-full" [disabled]="enCours()" (click)="decider('REFUSE')">
+              <app-icon name="x" [size]="18" /> Refuser
+            </button>
+          </div>
+        } @else {
+          <p class="text-sm">
+            {{ c.statut === 'ACCEPTE' ? 'Acceptée' : 'Refusée' }} le {{ dateHeure(c.dateDecision) }}
+            {{ c.adminDecideurNom ? 'par ' + c.adminDecideurNom : '' }}.
+          </p>
+          @if (c.motifRefus) {
+            <p class="mt-2 rounded-xl bg-card p-3 text-sm text-muted-strong">Motif : {{ c.motifRefus }}</p>
+          }
+        }
+      </section>
+    </aside>
+  </div>
+} @else {
+  <app-squelette [hauteur]="120" />
+  <div class="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_360px]">
+    <app-squelette [hauteur]="420" />
+    <app-squelette [hauteur]="420" />
+  </div>
+}

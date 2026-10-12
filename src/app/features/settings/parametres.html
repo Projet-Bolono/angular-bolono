@@ -19,6 +19,8 @@
   <section class="card p-4 sm:p-6"><app-textes-parametres /></section>
 } @else if (ongletActif() === 'ventes') {
   <section class="card p-4 sm:p-6"><app-regles-ventes /></section>
+} @else if (ongletActif() === 'kyc') {
+  <section class="card p-4 sm:p-6"><app-kyc-parametres /></section>
 } @else {
   <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
     <section class="card p-6">

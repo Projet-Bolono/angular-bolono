@@ -53,8 +53,14 @@ export function messageApi(erreur: unknown, defaut = 'Une erreur est survenue.')
   if (erreur instanceof HttpErrorResponse) {
     if (erreur.status === 0) return 'Le serveur Bolono est injoignable.';
     if (erreur.status === 403) return 'Action non autorisée pour ce compte.';
-    const message = (erreur.error as { message?: string } | null)?.message;
-    if (message) return message;
+    const corps = erreur.error as {
+      message?: string;
+      validationErrors?: Record<string, string> | null;
+    } | null;
+    // Erreur de validation : le serveur précise le motif de chaque champ refusé.
+    const champs = Object.values(corps?.validationErrors ?? {}).filter(Boolean);
+    if (champs.length) return champs.join(' ');
+    if (corps?.message) return corps.message;
   }
   return defaut;
 }

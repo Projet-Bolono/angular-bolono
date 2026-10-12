@@ -12,7 +12,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { CoursesService } from './courses.service';
-import { mediaUrl, nombre } from '../../core/utils/format';
+import { fcfa, mediaUrl, nombre } from '../../core/utils/format';
 import { messageApi } from '../../core/auth/http';
 import type { CategorieAdmin } from '../settings/settings.model';
 import type { FormationDetailAdmin, ModuleAdmin } from './courses.model';
@@ -21,9 +21,18 @@ import type { UtilisateurAdmin } from '../users/users.model';
 import { API_ADMIN } from '../../core/api/ressources';
 import { ToastService } from '../../core/notifications/toast.service';
 import { Modale, Televersement } from '../../shared/dialogs/fenetres';
-import { OptionNotification, notificationParDefaut } from '../../shared/components/option-notification';
+import {
+  OptionNotification,
+  notificationParDefaut,
+} from '../../shared/components/option-notification';
 import { Icon } from '../../shared/icons/icon';
-import { Badge, ConfirmationService, EtatVide, Squelette, EntetePage } from '../../shared/components/ui';
+import {
+  Badge,
+  ConfirmationService,
+  EtatVide,
+  Squelette,
+  EntetePage,
+} from '../../shared/components/ui';
 import { EditeurQuiz } from './editeur-quiz';
 
 const NIVEAUX = ['Débutant', 'Intermédiaire', 'Avancé'];
@@ -139,6 +148,7 @@ export class FormationFichePage {
   private readonly router = inject(Router);
   protected readonly mediaUrl = mediaUrl;
   protected readonly nombre = nombre;
+  protected readonly fcfa = fcfa;
   protected readonly duree = duree;
   protected readonly niveaux = NIVEAUX;
 
@@ -264,6 +274,33 @@ export class FormationFichePage {
       next: (f) => {
         this.fiche.value.set(f);
         this.toast.succes('Module supprimé.');
+      },
+      error: (e) => this.toast.erreur(messageApi(e)),
+    });
+  }
+
+  /** Retire la formation du catalogue (modération) ou l'y remet. */
+  protected async basculerRetrait(): Promise<void> {
+    const f = this.fiche.value()!;
+    const retirer = !f.retiree;
+    const { ok, notification } = await this.confirmation.demander({
+      titre: retirer
+        ? `Retirer « ${f.titre} » du catalogue ?`
+        : `Remettre « ${f.titre} » en ligne ?`,
+      message: retirer
+        ? 'Elle disparaît du catalogue ; ses acheteurs gardent l’accès et le mentor ne peut plus la republier seul.'
+        : 'Elle redevient visible au catalogue (si le mentor l’a publiée).',
+      confirmer: retirer ? 'Retirer' : 'Remettre en ligne',
+      danger: retirer,
+      notification: f.auteur?.nom ?? 'le mentor',
+    });
+    if (!ok) return;
+    this.api.definirRetrait(f.id, retirer, notification).subscribe({
+      next: (maj) => {
+        this.fiche.value.set(maj);
+        this.toast.succes(
+          retirer ? 'Formation retirée du catalogue.' : 'Formation remise en ligne.',
+        );
       },
       error: (e) => this.toast.erreur(messageApi(e)),
     });

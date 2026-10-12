@@ -89,6 +89,14 @@ export class Shell {
     [
       { libelle: 'Formations', icone: 'play-circle', lien: '/formations' },
       { libelle: 'Badges', icone: 'medal', lien: '/badges' },
+      { libelle: 'Avis des formations', icone: 'star', lien: '/avis' },
+      { libelle: 'Ventes de formations', icone: 'hand-coins', lien: '/ventes-formations' },
+      {
+        libelle: 'Retraits des mentors',
+        icone: 'money',
+        lien: '/retraits',
+        compteur: () => this.notifications.compteurs()?.retraitsADemander ?? 0,
+      },
     ],
     [
       { libelle: 'Annonces', icone: 'megaphone', lien: '/annonces' },

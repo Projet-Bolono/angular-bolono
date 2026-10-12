@@ -38,7 +38,12 @@ export class NotificationsService {
   });
   readonly total = computed(() => {
     const c = this.compteurs();
-    return c ? c.candidaturesEnAttente + c.publicationsSignalees + this.totalPaiements() : 0;
+    return c
+      ? c.candidaturesEnAttente +
+          c.publicationsSignalees +
+          this.totalPaiements() +
+          (c.retraitsADemander ?? 0)
+      : 0;
   });
 
   demarrer(): void {

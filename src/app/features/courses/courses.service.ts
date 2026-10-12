@@ -1,4 +1,10 @@
-import type { FormationRequest, FormationDetailAdmin, ModuleRequest, QuizAdmin, QuestionQuiz } from './courses.model';
+import type {
+  FormationRequest,
+  FormationDetailAdmin,
+  ModuleRequest,
+  QuizAdmin,
+  QuestionQuiz,
+} from './courses.model';
 import type { OptionsNotification } from '../../core/models/common.model';
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
@@ -15,6 +21,18 @@ export class CoursesService {
     return this.http.delete<void>(`${API_ADMIN}/formations/${id}`, {
       params: paramsNotification(notification),
     });
+  }
+
+  definirRetrait(
+    id: number,
+    retiree: boolean,
+    notification?: OptionsNotification,
+  ): Observable<FormationDetailAdmin> {
+    return this.http.patch<FormationDetailAdmin>(
+      `${API_ADMIN}/formations/${id}/retrait`,
+      { retiree },
+      { params: paramsNotification(notification) },
+    );
   }
 
   creerFormation(req: FormationRequest): Observable<FormationDetailAdmin> {

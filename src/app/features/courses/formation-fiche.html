@@ -13,10 +13,37 @@
   </div>
 } @else if (nouvelle() || fiche.hasValue()) {
   <app-entete-page [titre]="nouvelle() ? 'Nouvelle formation' : (fiche.value()?.titre ?? '')">
-    @if (!nouvelle()) {
-      <button actions class="btn-outline btn-sm text-error!" (click)="supprimer()">
-        <app-icon name="trash" [size]="15" /> Supprimer la formation
-      </button>
+    @if (!nouvelle() && fiche.value(); as etat) {
+      <div actions class="flex flex-wrap items-center gap-2">
+        @if (etat.retiree) {
+          <app-badge ton="erreur">Retirée du catalogue</app-badge>
+        } @else if (etat.brouillon) {
+          <app-badge ton="attention">Brouillon du mentor</app-badge>
+        } @else {
+          <app-badge ton="succes">Publiée</app-badge>
+        }
+        @switch (etat.modeTarification) {
+          @case ('FORMATION_ENTIERE') {
+            <app-badge ton="accent">Formation entière · {{ fcfa(etat.prixFormation ?? 0) }}</app-badge>
+          }
+          @case ('PAR_VIDEO') {
+            <app-badge ton="accent">Vendue vidéo par vidéo</app-badge>
+          }
+          @default {
+            <app-badge ton="neutre">Gratuite</app-badge>
+          }
+        }
+        @if (etat.ventes) {
+          <app-badge ton="info">{{ etat.ventes }} vente(s)</app-badge>
+        }
+        <button class="btn-outline btn-sm" (click)="basculerRetrait()">
+          <app-icon [name]="etat.retiree ? 'eye' : 'eye-slash'" [size]="15" />
+          {{ etat.retiree ? 'Remettre en ligne' : 'Retirer du catalogue' }}
+        </button>
+        <button class="btn-outline btn-sm text-error!" (click)="supprimer()">
+          <app-icon name="trash" [size]="15" /> Supprimer la formation
+        </button>
+      </div>
     }
   </app-entete-page>
 
@@ -151,6 +178,13 @@
                         >{{ nombre(m.termines) }} apprenant{{ m.termines > 1 ? 's' : '' }} l'ont
                         terminé</span
                       >
+                      @if (m.apercuGratuit) {
+                        <app-badge ton="succes">Aperçu gratuit</app-badge>
+                      } @else if (m.prix) {
+                        <app-badge ton="attention">Payante · {{ fcfa(m.prix) }}</app-badge>
+                      } @else if (m.payante) {
+                        <app-badge ton="attention">Incluse dans la formation</app-badge>
+                      }
                       @if (m.disponibleHorsLigne) {
                         <app-badge ton="info">Hors ligne</app-badge>
                       }
