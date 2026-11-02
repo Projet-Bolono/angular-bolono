@@ -18,7 +18,7 @@ export const STATUTS_KYC: Record<StatutKyc, { libelle: string; ton: Ton }> = {
   ANNULEE: { libelle: 'Identité : annulée', ton: 'neutre' },
 };
 
-/** Motifs renvoyés par le service KYC (mêmes codes que kyc-server, app/domain/enums.py). */
+/** Motifs renvoyés par le service KYC (mêmes codes que yeredon-server, app/domain/enums.py). */
 export const MOTIFS_KYC: Record<string, string> = {
   DOCUMENT_EXPIRED: 'Pièce expirée',
   DOCUMENT_UNREADABLE: 'Pièce illisible',

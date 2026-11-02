@@ -13,6 +13,14 @@ npm run build      # build de production dans dist/
 
 Le backend Spring Boot doit tourner sur l'adresse indiquée par `apiUrl`, dans `src/environments/environment.ts` (par défaut `http://localhost:8080`).
 
+## Déploiement Railway
+
+L'application est déployée avec le `Dockerfile` du dossier. Configurez
+`API_URL` et les variables publiques de l'application Web Firebase dans le
+service Railway; elles sont injectées au démarrage du conteneur. Consultez le
+[guide de déploiement Railway](../../docs/angular/deploiement-railway.md) pour
+la liste des variables et le réglage CORS du backend.
+
 ## Connexion
 
 L'authentification passe par Firebase, avec le même projet que l'app mobile (`bolono-2026`), par e-mail et mot de passe. Le backend vérifie ensuite le rôle de l'utilisateur : seuls les comptes au rôle `ADMIN` peuvent ouvrir le back-office.
