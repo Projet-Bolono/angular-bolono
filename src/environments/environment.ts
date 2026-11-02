@@ -1,6 +1,23 @@
 
-export const environment = {
-  production: false,
+interface BolonoRuntimeConfig {
+  apiUrl: string;
+  firebase: {
+    apiKey: string;
+    authDomain: string;
+    projectId: string;
+    storageBucket: string;
+    messagingSenderId: string;
+    appId: string;
+  };
+}
+
+declare global {
+  interface Window {
+    __bolonoConfig?: BolonoRuntimeConfig;
+  }
+}
+
+const localConfig: BolonoRuntimeConfig = {
   apiUrl: 'http://localhost:8080',
   firebase: {
     apiKey: 'AIzaSyBJx2ZiZJ_ZCZY4BlFNikYWXphRGGIKqIA',
@@ -10,4 +27,11 @@ export const environment = {
     messagingSenderId: '876644842504',
     appId: '',
   },
+};
+
+const config = typeof window !== 'undefined' ? window.__bolonoConfig : undefined;
+
+export const environment = {
+  production: typeof window !== 'undefined' && config !== undefined,
+  ...(config ?? localConfig),
 };
